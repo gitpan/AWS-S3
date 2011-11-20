@@ -293,9 +293,3 @@ sub _urlencode
 1;# return true:
 
 
-=head1 NAME
-
-Amazon::S3::Lite::HTTPRequest - Create a signed HTTP::Request
-
-
-
