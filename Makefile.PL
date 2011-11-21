@@ -11,6 +11,7 @@ all_from 'lib/AWS/S3.pm';
 test_requires 'Test::More'  => '0';
 
 requires      'VSO'                       => '0.003';
+requires      'Class::Load'               => '0';
 requires      'XML::LibXML'               => '0';
 requires      'XML::LibXML::XPathContext' => '0';
 requires      'Carp'                      => '0';

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               AWS-S3
-version:            0.002
+version:            0.004
 abstract:           Lightweight interface to Amazon S3 (Simple Storage Service)
 author:
     - John Drago <jdrago_999@yahoo.com>
@@ -9,15 +9,16 @@ distribution_type:  module
 test_requires:
     Test::More:       0
 requires:
-    Carp:              0
-    Iterator::Paged:   1.001
-    XML::LibXML:        0
-    XML::LibXML::XPathContext: 0
-    LWP::UserAgent:    0
-    Digest::HMAC_SHA1: 0
-    MIME::Base64:      0
-    URI::Escape:       0
-    VSO:               0.003
+    Carp:                       0
+    Class::Load                 0
+    Iterator::Paged:            1.001
+    XML::LibXML:                0
+    XML::LibXML::XPathContext:  0
+    LWP::UserAgent:             0
+    Digest::HMAC_SHA1:          0
+    MIME::Base64:               0
+    URI::Escape:                0
+    VSO:                        0.003
 recommends:
 no_index:
     directory:
