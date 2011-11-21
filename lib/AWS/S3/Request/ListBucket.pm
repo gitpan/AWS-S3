@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::ListBucket;
+package 
+AWS::S3::Request::ListBucket;
 
 use VSO;
 use AWS::S3::HTTPRequest;

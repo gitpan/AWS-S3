@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::SetBucketAccessControl;
+package 
+AWS::S3::Request::SetBucketAccessControl;
 
 use VSO;
 use AWS::S3::HTTPRequest;

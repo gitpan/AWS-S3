@@ -3,6 +3,7 @@ package AWS::S3::Bucket;
 
 use Carp 'confess';
 use VSO;
+use IO::Socket::INET;
 use AWS::S3::ResponseParser;
 use AWS::S3::FileIterator;
 
@@ -147,7 +148,7 @@ sub _set_location_constraint
   
   if( my $msg = $parser->friendly_error() )
   {
-    die $msg;
+    die $msg unless $parser->error_code eq 'BucketAlreadyOwnedByYou';
   }# end if()
   
   return 1;
@@ -176,7 +177,7 @@ sub _get_policy
   my $s = shift;
   
   my $type = 'GetBucketPolicy';
-  return $s->_get_property( $type )->response->decoded_content();
+  return $s->_get_property( $type, is_raw => 1 )->response->decoded_content();
 }# end _get_policy()
 
 
@@ -228,16 +229,20 @@ sub file
 {
   my ($s, $key) = @_;
   
-  my $iter = AWS::S3::FileIterator->new(
-    bucket  => $s,
-    marker  => $key,
-    page_number => 1,
-    page_size   => 1,
-  );
+  my $type = 'GetFileContents';
   
-  my ($file) = $iter->next_page
+  my $parser = $s->_get_property($type, key => $key)
     or return;
-  return $file;
+  
+  my $res = $parser->response;
+  return AWS::S3::File->new(
+    bucket        => $s,
+    key           => $key,
+    size          => $res->header('content-length'),
+    etag          => $res->header('etag'),
+    lastmodified  => $res->header('last-modified'),
+    contents      => \$res->decoded_content,
+  );
 }# end file()
 
 
@@ -255,16 +260,41 @@ sub add_file
 }# end add_file()
 
 
-sub _get_property
+sub delete
 {
-  my ($s, $type) = @_;
+  my ($s) = @_;
+  
+  my $type = 'DeleteBucket';
   
   my $req = $s->s3->request($type,
-    bucket  => $s->name
+    bucket  => $s->name,
+  );
+  my $parser = AWS::S3::ResponseParser->new(
+    type            => $type,
+    response        => $s->s3->ua->request( $req ),
+    expect_nothing  => 1,
+  );
+  
+  if( my $msg = $parser->friendly_error() )
+  {
+    die $msg;
+  }# end if()
+  
+  return 1;
+}# end delete()
+
+
+sub _get_property
+{
+  my ($s, $type, %args) = @_;
+  
+  my $req = $s->s3->request($type,
+    bucket  => $s->name,
+    %args,
   );
   my $parser = AWS::S3::ResponseParser->new(
     type      => $type,
-    response  => $type =~ m{Policy} ? $s->_raw_response( $req ) : $s->s3->ua->request( $req ),
+    response  => $args{is_raw} ? $s->_raw_response( $req ) : $s->s3->ua->request( $req ),
   );
   
   return if $parser->response->code == 404;
@@ -281,9 +311,13 @@ sub _get_property
 sub _raw_response
 {
   my ($s, $http_req) = @_;
-    
-  require IO::Socket::INET;
+  
   my ($host, $uri) = $http_req->uri =~ m{://(.+?)/(.+)$};
+  unless( $host && $uri )
+  {
+    ($host) = $http_req->uri =~ m{://(.+?)/?$};
+    $uri = '';
+  }# end unless()
   my $sock = IO::Socket::INET->new(
     PeerAddr  => $host,
     PeerPort  => 80, 
@@ -313,7 +347,6 @@ REQ
   
   return HTTP::Response->parse( join "\n", @parts );  
 }# end _raw_response()
-
 
 1;# return true:
 

@@ -14,6 +14,9 @@ lib/AWS/S3/FileIterator.pm
 lib/AWS/S3/HTTPRequest.pm
 lib/AWS/S3/Owner.pm
 lib/AWS/S3/Request.pm
+lib/AWS/S3/Request/CreateBucket.pm
+lib/AWS/S3/Request/DeleteBucket.pm
+lib/AWS/S3/Request/DeleteFile.pm
 lib/AWS/S3/Request/GetBucketAccessControl.pm
 lib/AWS/S3/Request/GetBucketLocationConstraint.pm
 lib/AWS/S3/Request/GetBucketPolicy.pm

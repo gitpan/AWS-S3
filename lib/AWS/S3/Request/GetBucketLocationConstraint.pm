@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::GetBucketLocationConstraint;
+package 
+AWS::S3::Request::GetBucketLocationConstraint;
 
 use VSO;
 use AWS::S3::HTTPRequest;

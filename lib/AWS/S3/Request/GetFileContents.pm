@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::GetFileContents;
+package 
+AWS::S3::Request::GetFileContents;
 
 use VSO;
 use AWS::S3::HTTPRequest;

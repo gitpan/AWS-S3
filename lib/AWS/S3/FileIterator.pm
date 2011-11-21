@@ -20,12 +20,18 @@ sub _init
   }# end foreach()
   
   $s->{page_number}--;
-  $s->{marker} = '';
+  $s->{marker} = '' unless defined($s->{marker});
 }# end _init()
 
 sub marker { shift->{marker} }
 sub pattern { shift->{pattern} }
 sub bucket { shift->{bucket} }
+
+sub page_number
+{
+  my $s = shift;
+  @_ ? $s->{page_number} = $_[0] - 1 : $s->{page_number}
+}# end page_number()
 
 
 sub next_page
@@ -85,6 +91,7 @@ sub _fetch
       id            => $parser->xpc->findvalue('.//s3:ID', $owner_node),
       display_name  => $parser->xpc->findvalue('.//s3:DisplayName', $owner_node)
     );
+    my $etag = $parser->xpc->findvalue('.//s3:ETag', $node);
     push @files, AWS::S3::File->new(
       bucket        => $s->{bucket},
       key           => $parser->xpc->findvalue('.//s3:Key', $node),
@@ -102,7 +109,6 @@ sub _fetch
   
   @files ? return @files : return;
 }# end _fetch()
-
 
 1;# return true:
 

@@ -63,7 +63,18 @@ after 'contents' => sub {
   return unless defined $new_value;
   
   $s->_set_contents( $new_value );
+  $s->{contents} = undef;
 };
+
+sub BUILD
+{
+  my $s = shift;
+  
+  return unless $s->etag;
+  (my $etag = $s->etag) =~ s{^"}{};
+  $etag =~ s{"$}{};
+  $s->{etag} = $etag;
+}# end BUILD()
 
 
 sub _get_contents
@@ -71,7 +82,7 @@ sub _get_contents
   my $s = shift;
   
   my $type = 'GetFileContents';
-  my $req = $s->{bucket}->s3->request($type,
+  my $req = $s->bucket->s3->request($type,
     bucket  => $s->bucket->name,
     key     => $s->key,
   );
@@ -85,9 +96,34 @@ sub _set_contents
   my ($s, $ref) = @_;
   
   my $type = 'SetFileContents';
-  my $req = $s->{bucket}->s3->request($type,
+  my $req = $s->bucket->s3->request($type,
     file    => $s,
     bucket  => $s->bucket->name,
+  );
+  my $parser = AWS::S3::ResponseParser->new(
+    type            => $type,
+    response        => $s->bucket->s3->ua->request( $req ),
+    expect_nothing  => 1,
+  );
+  (my $etag = $parser->response->header('etag')) =~ s{^"}{};
+  $etag =~ s{"$}{};
+  $s->{etag} = $etag;
+  
+  if( my $msg = $parser->friendly_error() )
+  {
+    die $msg;
+  }# end if()
+}# end set_contents()
+
+
+sub delete
+{
+  my $s = shift;
+  
+  my $type = 'DeleteFile';
+  my $req = $s->bucket->s3->request($type,
+    bucket  => $s->bucket->name,
+    key     => $s->key,
   );
   my $parser = AWS::S3::ResponseParser->new(
     type            => $type,
@@ -100,22 +136,7 @@ sub _set_contents
     die $msg;
   }# end if()
   
-  # Yay!:
-}# end set_contents()
-
-
-sub delete
-{
-  my $s = shift;
-  
-  my $hreq = Amazon::S3::Lite::HTTPRequest->new(
-    s3      => $s->bucket->s3,
-    path    => $s->bucket->name . '/' . $s->key,
-    method  => 'DELETE'
-  );
-  $s->bucket->s3->ua->request( $hreq->http_request )->content;
-  
-  undef($s);
+  return 1;
 }# end delete()
 
 1;# return true:

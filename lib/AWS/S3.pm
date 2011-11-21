@@ -4,14 +4,16 @@ package AWS::S3;
 use VSO;
 use Carp 'confess';
 use LWP::UserAgent;
+use HTTP::Response;
+use IO::Socket::INET;
 use Class::Load 'load_class';
-use AWS::S3::ResponseParser;
 
+use AWS::S3::ResponseParser;
 use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 has 'access_key_id' => (
   is    => 'ro'
@@ -109,8 +111,61 @@ sub bucket
 
 sub add_bucket
 {
+  my ($s, %args) = @_;
   
+  my $type = 'CreateBucket';
+  my $req = $s->request( $type, bucket => $args{name} );
+  
+  my $parser = AWS::S3::ResponseParser->new(
+    response        => $s->_raw_response( $req ),
+    type            => $type,
+    expect_nothing  => 1,
+  );
+  
+  if( my $msg = $parser->friendly_error() )
+  {
+    die $msg;
+  }# end if()
+  
+  return $s->bucket( $args{name} );
 }# end add_bucket()
+
+
+sub _raw_response
+{
+  my ($s, $http_req) = @_;
+  
+  my ($host, $uri) = $http_req->uri =~ m{://(.+?)(/.?)$};
+  my $sock = IO::Socket::INET->new(
+    PeerAddr  => $host,
+    PeerPort  => 80, 
+    Proto     => 'tcp',
+  ) or die "Could not create socket: $!";
+
+  my $req = <<"REQ";
+@{[ $http_req->method ]} $uri HTTP/1.1
+Host: $host
+Date: @{[ $http_req->header('Date') ]}
+Authorization: @{[ $http_req->header('Authorization') ]}
+
+
+REQ
+  print $sock $req, $http_req->content;
+
+  my @parts = ( );
+  while( <$sock> )
+  {
+    $_ =~ s{^\s+}{};
+    $_ =~ s{\s+$}{};
+    last if $_ eq '0';
+    push @parts, $_;
+    last unless length($_);
+  }# end while()
+
+  close($sock);
+  
+  return HTTP::Response->parse( join "\n", @parts );  
+}# end _raw_response()
 
 
 1;# return true:
@@ -123,7 +178,69 @@ AWS::S3 - Lightweight interface to Amazon S3 (Simple Storage Service)
 
 =head1 SYNOPSIS
 
-  # TBD
+  use AWS::S3;
+  
+  my $s3 = AWS::S3->new(
+    access_key_id     => 'E654SAKIASDD64ERAF0O',
+    secret_access_key => 'LgTZ25nCD+9LiCV6ujofudY1D6e2vfK0R4GLsI4H',
+  );
+  
+  # Add a bucket:
+  my $bucket = $s3->add_bucket(
+    name    => 'foo-bucket',
+  );
+  
+  # Set the acl:
+  $bucket->acl( 'private' );
+  
+  # Add a file:
+  my $new_file = $bucket->add_file(
+    key       => 'foo/bar.txt',
+    contents  => \'This is the contents of the file',
+  );
+  
+  # Get the file:
+  my $same_file = $bucket->file( 'foo/bar.txt' );
+  
+  # Get the contents:
+  my $scalar_ref = $same_file->contents;
+  print $$scalar_ref;
+  
+  # Update the contents:
+  $same_file->contents( \"New file contents" );
+  
+  # Delete the file:
+  $same_file->delete();
+  
+  # Iterate through lots of files:
+  my $iterator = $bucket->files(
+    page_size   => 100,
+    page_number => 1,
+  );
+  while( my @files = $iterator->next_page )
+  {
+    warn "Page number: ", $iterator->page_number, "\n";
+    foreach my $file ( @files )
+    {
+      warn "\tFilename (key): ", $file->key, "\n";
+      warn "\tSize: ", $file->size, "\n";
+      warn "\tETag: ", $file->etag, "\n";
+      warn "\tContents: ", ${ $file->contents }, "\n";
+    }# end foreach()
+  }# end while()
+  
+  # You can't delete a bucket until it's empty.
+  # Empty a bucket like this:
+  while( my @files = $iterator->next_page )
+  {
+    map { $_->delete } @files;
+    
+    # Return to page 1:
+    $iterator->page_number( 1 );
+  }# end while()
+  
+  # Now you can delete the bucket:
+  $bucket->delete();
 
 =head1 DESCRIPTION
 

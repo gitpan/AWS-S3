@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::ListAllMyBuckets;
+package 
+AWS::S3::Request::ListAllMyBuckets;
 
 use VSO;
 use AWS::S3::HTTPRequest;

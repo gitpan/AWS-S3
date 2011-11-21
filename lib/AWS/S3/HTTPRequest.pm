@@ -1,5 +1,6 @@
 
-package AWS::S3::HTTPRequest;
+package 
+AWS::S3::HTTPRequest;
 
 use VSO;
 

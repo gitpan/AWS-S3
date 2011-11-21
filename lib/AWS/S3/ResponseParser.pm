@@ -1,5 +1,6 @@
 
-package AWS::S3::ResponseParser;
+package 
+AWS::S3::ResponseParser;
 
 use VSO;
 use XML::LibXML;
@@ -78,7 +79,7 @@ sub BUILD
     {
       if( $s->_parse_errors() )
       {
-        die $s->friendly_error();
+#        die $s->friendly_error();
       }
       else
       {

@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::GetBucketPolicy;
+package 
+AWS::S3::Request::GetBucketPolicy;
 
 use VSO;
 use AWS::S3::HTTPRequest;

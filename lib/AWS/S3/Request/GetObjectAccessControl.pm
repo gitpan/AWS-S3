@@ -1,5 +1,6 @@
 
-package AWS::S3::Request::GetObjectAccessControl;
+package 
+AWS::S3::Request::GetObjectAccessControl;
 
 use VSO;
 use AWS::S3::HTTPRequest;
