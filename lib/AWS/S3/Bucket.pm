@@ -355,3 +355,132 @@ REQ
 
 1;# return true:
 
+=pod
+
+=head1 NAME
+
+AWS::S3::Bucket - Object representation of S3 Buckets
+
+=head1 SYNOPSIS
+
+See L<The SYNOPSIS from AWS::S3|AWS::S3/SYNOPSIS> for usage details.
+
+=head1 CONSTRUCTOR
+
+Call C<new()> with the following parameters.
+
+=head1 PUBLIC PROPERTIES
+
+=head2 s3
+
+Required.  An L<AWS::S3> object.
+
+Read-only.
+
+=head2 name
+
+Required.  String.
+
+The name of the bucket.
+
+Read-only.
+
+=head2 creation_date
+
+String.  Returned from the S3 service itself.
+
+Read-only.
+
+=head2 acl
+
+String.  Returns XML string.
+
+Read-only.
+
+B<TODO:> Implement setting the ACL properly.
+
+See also L<PUT Bucket ACL|http://docs.amazonwebservices.com/AmazonS3/latest/API/index.html?RESTBucketPUTacl.html>
+
+=head2 location_constraint
+
+String.  Accepts valid location constraint values.
+
+=over 4
+
+=item * EU
+
+=item * us-west-1
+
+=item * us-west-2
+
+=item * ap-southeast-1
+
+=item * ap-northeast-1
+
+=back
+
+The default value is 'US'.
+
+See also L<PUT Bucket|http://docs.amazonwebservices.com/AmazonS3/latest/API/index.html?RESTBucketPUT.html>
+
+=head2 policy
+
+Read-only.  String of JSON.
+
+Looks something like this:
+
+  {
+    "Version":"2008-10-17",
+    "Id":"aaaa-bbbb-cccc-dddd",
+    "Statement" : [
+      {
+        "Effect":"Deny",
+        "Sid":"1", 
+        "Principal" : {
+          "AWS":["1-22-333-4444","3-55-678-9100"]
+        },
+        "Action":["s3:*"],
+        "Resource":"arn:aws:s3:::bucket/*",
+      }
+    ]
+  }
+
+See also L<GET Bucket Policy|http://docs.amazonwebservices.com/AmazonS3/latest/API/index.html?RESTBucketGETpolicy.html>
+
+=head1 PUBLIC METHODS
+
+=head2 files( page_size => $size, page_number => $number, [[marker => $marker,] pattern => qr/$pattern/ ] )
+
+Returns a L<AWS::S3::FileIterator> object with the supplied arguments.
+
+Use the L<AWS::S3::FileIterator> to page through your results.
+
+=head2 file( $key )
+
+Finds the file with that C<$key> and returns an L<AWS::S3::File> object for it.
+
+=head1 SEE ALSO
+
+L<The Amazon S3 API Documentation|http://docs.amazonwebservices.com/AmazonS3/latest/API/>
+
+L<AWS::S3::Bucket>
+
+L<AWS::S3::File>
+
+L<AWS::S3::FileIterator>
+
+L<AWS::S3::Owner>
+
+=head1 AUTHOR
+
+John Drago <jdrago_999@yahoo.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+This software is Free software and may be used and redistributed under the same
+terms as any version of perl itself.
+
+Copyright John Drago 2011 all rights reserved.
+
+=cut
+

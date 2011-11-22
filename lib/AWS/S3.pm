@@ -13,7 +13,7 @@ use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 has 'access_key_id' => (
   is    => 'ro'
@@ -261,6 +261,92 @@ B<NOTE:> Until AWS::S3 gets to version 1.000 it will not implement the full S3 i
 B<Disclaimer:> Several portions of AWS::S3 have been adopted from L<Net::Amazon::S3>.
 
 B<NOTE:> AWS::S3 is NOT a drop-in replacement for L<Net::Amazon::S3>.
+
+B<TODO:> CloudFront integration.
+
+=head1 CONSTRUCTOR
+
+Call C<new()> with the following parameters.
+
+=head2 access_key_id
+
+Required.  String.
+
+Provided by Amazon, this is your access key id.
+
+=head2 secret_access_key
+
+Required.  String.
+
+Provided by Amazon, this is your secret access key.
+
+=head2 secure
+
+Optional.  Boolean.
+
+Default is C<0>
+
+=head2 ua
+
+Optional.  Should be an instance of L<LWP::UserAgent> or a subclass of it.
+
+Defaults to creating a new instance of L<LWP::UserAgent>
+
+=head1 PUBLIC PROPERTIES
+
+=head2 access_key_id
+
+String.  Read-only
+
+=head2 secret_access_key
+
+String.  Read-only.
+
+=head2 secure
+
+Boolean.  Read-only.
+
+=head2 ua
+
+L<LWP::UserAgent> object.  Read-only.
+
+=head2 owner
+
+L<AWS::S3::Owner> object.  Read-only.
+
+=head1 PUBLIC METHODS
+
+=head2 buckets
+
+Returns an array of L<AWS::S3::Bucket> objects.
+
+=head2 bucket( $name )
+
+Returns the L<AWS::S3::Bucket> object matching C<$name> if found.
+
+Returns nothing otherwise.
+
+=head2 add_bucket( name => $name )
+
+Attempts to create a new bucket with the name provided.
+
+On success, returns the new L<AWS::S3::Bucket>
+
+On failure, dies with the error message.
+
+See L<AWS::S3::Bucket> for details on how to use buckets (and access their files).
+
+=head1 SEE ALSO
+
+L<The Amazon S3 API Documentation|http://docs.amazonwebservices.com/AmazonS3/latest/API/>
+
+L<AWS::S3::Bucket>
+
+L<AWS::S3::File>
+
+L<AWS::S3::FileIterator>
+
+L<AWS::S3::Owner>
 
 =head1 AUTHOR
 
