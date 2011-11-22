@@ -1,6 +1,9 @@
 
 Changelog for perl module AWS::S3
 
+2011-11-21      v0.005
+  - Setting file contents via a coderef now works properly.
+
 2011-11-21      v0.004
   - I didn't update 'Changes' or 'META.yml' in v0.003 - fixing...
 

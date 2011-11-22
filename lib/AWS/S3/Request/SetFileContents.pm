@@ -17,11 +17,21 @@ sub http_request
 {
   my $s = shift;
   
+  my $contents;
+  if( ref($s->file->contents) eq 'CODE' )
+  {
+    $contents = $s->file->contents->();
+  }
+  elsif( ref($s->file->contents) eq 'SCALAR' )
+  {
+    $contents = $s->file->contents;
+  }# end if()
+  
   my $req = AWS::S3::HTTPRequest->new(
     s3      => $s->s3,
     method  => 'PUT',
     path    => $s->_uri('') . $s->file->key,
-    content => $s->file->contents,
+    content => $$contents,
   )->http_request;
   $req->header('content-length' => length($req->content));
   return $req;

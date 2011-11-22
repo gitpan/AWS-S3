@@ -250,6 +250,11 @@ sub add_file
 {
   my ($s, %args) = @_;
   
+  if( ref($args{contents}) eq 'CODE' )
+  {
+    my $str = $args{contents}->();
+    $args{contents} = $str;
+  }# end if()
   my $file = AWS::S3::File->new(
     size    => length(${$args{contents}}),
     %args,

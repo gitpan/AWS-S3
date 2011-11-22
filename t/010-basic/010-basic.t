@@ -54,6 +54,20 @@ if( $bucket )
     is ${ $file->contents }, $test_str, 'file.contents is correct';
   };
   
+  ADD_FILE_WITH_CODE: {
+    my $text = "This is the content"x4;
+    ok $bucket->add_file(
+      key => 'code/test.txt',
+      contents  => sub { return \$text }
+    ), 'add file with code contents worked';
+    ok my $file = $bucket->file('code/test.txt'), "got file back from bucket";
+    is ${$file->contents}, $text, "file.contents on code is correct";
+    $file->contents( sub { return \uc($text) } );
+    is ${$file->contents}, uc($text), "file.contents on code is correct after update";
+    
+    $file->delete;
+  };
+  
   # Set contents:
   SET_CONTENTS: {
     my $new_contents = "This is the updated value"x10;
