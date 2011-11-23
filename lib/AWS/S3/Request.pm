@@ -16,7 +16,7 @@ has 'bucket' => (
 has 's3' => (
   is        => 'ro',
   required  => 1,
-  isa       => 'Amazon::S3::Lite',
+  isa       => 'AWS::S3',
 );
 
 
