@@ -1,6 +1,9 @@
 
 Changelog for perl module AWS::S3
 
+2011-11-13      v0.010
+  - Added missing files to MANIFEST.
+
 2011-11-23      v0.009
   - Added missing prereq Iterator::Paged
 
