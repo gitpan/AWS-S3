@@ -13,13 +13,16 @@ unless( $ENV{AWS_ACCESS_KEY_ID} && $ENV{AWS_SECRET_ACCESS_KEY} )
   exit(0);
 }# end unless()
 
-
+use LWP::UserAgent::Determined;
 my $s3 = AWS::S3->new(
   access_key_id     => $ENV{AWS_ACCESS_KEY_ID},
   secret_access_key => $ENV{AWS_SECRET_ACCESS_KEY},
+  ua                => LWP::UserAgent::Determined->new()
 );
 
 isa_ok $s3->ua, 'LWP::UserAgent';
+
+cleanup();
 
 ok my $owner = $s3->owner(), "s3.owner returns a value";
 isa_ok $owner, 'AWS::S3::Owner';
@@ -90,10 +93,10 @@ if( $bucket )
     my %info = ( );
     
     # Add the files:
-    for( 0..20 )
+    for( 0..250 )
     {
-      my $contents  = "Contents of file $_\n"x$_;
-      my $key       = "bar/baz/foo.$_.txt";
+      my $contents  = "Contents of file $_\n"x4;
+      my $key       = "bar/baz/foo." . sprintf("%03d", $_) . ".txt";
       $info{$key} = $contents;
       ok $bucket->add_file(
         key       => $key,
@@ -102,23 +105,51 @@ if( $bucket )
     }# end for()
     
     # Make sure they all worked:
+    my $counted = 0;
     foreach my $key ( sort keys %info )
     {
       my $contents = $info{$key};
       ok my $file = $bucket->file($key), "bucket.file($key) returned a file";
       is $file->size, length($contents), 'file.size is correct';
       is ${$file->contents}, $contents, 'file.contents is correct';
+      last if $counted++ > 4;
     }# end for()
     
     # Try iterating through the files:
     my $iter = $bucket->files( page_size => 2, page_number => 1 );
+    $counted = 0;
     while( my @files = $iter->next_page )
     {
       foreach my $file ( @files )
       {
-        is ${$file->contents}, $info{$file->key}, 'file.contents works on iterated files';
+        is ${$file->contents}, $info{$file->key}, "file(@{[$file->key]}).contents works on iterated files";
+        last if $counted++ > 4;
       }# end foreach()
+      last;
     }# end while()
+    
+    # Make sure that if we say we want to start on page 11, we *start* on page 11:
+    $iter = $bucket->files( page_size => 10, page_number => 18 );
+    # Should get files 171-180:
+    SMALL_ITER: {
+      my @files = $iter->next_page;
+      for( 171..180 )
+      {
+        my $file = shift(@files);
+        is $file->key, "bar/baz/foo.$_.txt", "file $_ is what we expected";
+      }# end for()
+    };
+    
+    # How about when our page size is larger than what we get back from S3?:
+    $iter = $bucket->files( page_size => 105, page_number => 2 );
+    BIG_ITER: {
+      my @files = $iter->next_page;
+      for( 106..116 )
+      {
+        my $file = shift(@files);
+        is $file->key, "bar/baz/foo.$_.txt", "file $_ is what we expected";
+      }# end for()
+    };
     
     # Delete the files:
     map {
@@ -130,6 +161,28 @@ if( $bucket )
   ok $bucket->delete, 'bucket.delete succeeds when bucket IS empty.';
 }# end if()
 
+cleanup();
 
+
+sub cleanup
+{
+  warn "\nCleaning Up...\n";
+  foreach my $bucket ( grep { $_->name =~ m{^(aws-s3-test\-\d+).+?foo$} } $s3->buckets )
+  {
+    warn "Bucket: ", $bucket->name, "\n";
+    my $iter = $bucket->files( page_size => 100, page_number => 1 );
+    while( my @files = $iter->next_page )
+    {
+      foreach my $file ( @files )
+      {
+        warn "\tdelete: ", $file->key, "\n";
+        eval { $file->delete };
+      }# end foreach()
+      $iter->page_number( 1 );
+    }# end while()
+    eval { $bucket->delete };
+    warn "\n";
+  }# end foreach()
+}# end cleanup()
 
 

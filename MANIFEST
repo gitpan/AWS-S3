@@ -28,7 +28,6 @@ lib/AWS/S3/Request/SetBucketAccessControl.pm
 lib/AWS/S3/Request/SetBucketLocationConstraint.pm
 lib/AWS/S3/Request/SetBucketPolicy.pm
 lib/AWS/S3/Request/SetFileContents.pm
-lib/AWS/S3/Response.pm
 lib/AWS/S3/ResponseParser.pm
 Makefile.PL
 MANIFEST			This list of files

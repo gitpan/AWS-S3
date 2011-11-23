@@ -1,6 +1,16 @@
 
 Changelog for perl module AWS::S3
 
+
+2011-11-22      v0.007
+  - Fixed AWS::S3::FileIterator to work properly.
+  - New tests confirm it.
+  - Now require LWP::UserAgent::Determined instead of just LWP::UserAgent.
+  - More POD updates.
+
+2011-11-22      v0.006
+  - Updated some of the POD.
+
 2011-11-21      v0.005
   - Setting file contents via a coderef now works properly.
 

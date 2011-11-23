@@ -141,3 +141,128 @@ sub delete
 
 1;# return true:
 
+=pod
+
+=head1 NAME
+
+AWS::S3::File - A single file in Amazon S3
+
+=head1 SYNOPSIS
+
+  my $file = $bucket->file('foo/bar.txt');
+  
+  # contents is a scalarref:
+  print @{ $file->contents };
+  print $file->size;
+  print $file->key;
+  print $file->etag;
+  print $file->lastmodified;
+  
+  print $file->owner->display_name;
+  
+  print $file->bucket->name;
+  
+  # Set the contents with a scalarref:
+  my $new_contents = "This is the new contents of the file.";
+  $file->contents( \$new_contents );
+  
+  # Set the contents with a coderef:
+  $file->contents( sub {
+    return \$new_contents;
+  });
+  
+  # Delete the file:
+  $file->delete();
+
+=head1 DESCRIPTION
+
+AWS::S3::File provides a convenience wrapper for dealing with files stored in S3.
+
+=head1 PUBLIC PROPERTIES
+
+=head2 bucket
+
+L<AWS::S3::Bucket> - read-only.
+
+The L<AWS::S3::Bucket> that contains the file.
+
+=head2 key
+
+String - read-only.
+
+The 'filename' (for all intents and purposes) of the file.
+
+=head2 size
+
+Integer - read-only.
+
+The size in bytes of the file.
+
+=head2 etag
+
+String - read-only.
+
+The Amazon S3 'ETag' header for the file.
+
+=head2 owner
+
+L<ASW::S3::Owner> - read-only.
+
+The L<ASW::S3::Owner> that the file belongs to.
+
+=head2 storageclass
+
+String - read-only.
+
+The type of storage used by the file.
+
+=head2 lastmodified
+
+String - read-only.
+
+A date in this format:
+
+  2009-10-28T22:32:00
+
+=head2 contents
+
+ScalarRef|CodeRef - read-write.
+
+Returns a scalar-reference of the file's contents.
+
+Accepts either a scalar-ref or a code-ref (which would return a scalar-ref).
+
+Once given a new value, the file is instantly updated on Amazon S3.
+
+=head1 PUBLIC METHODS
+
+=head2 delete()
+
+Deletes the file from Amazon S3.
+
+=head1 SEE ALSO
+
+L<The Amazon S3 API Documentation|http://docs.amazonwebservices.com/AmazonS3/latest/API/>
+
+L<AWS::S3>
+
+L<AWS::S3::Bucket>
+
+L<AWS::S3::FileIterator>
+
+L<AWS::S3::Owner>
+
+=head1 AUTHOR
+
+John Drago <jdrago_999@yahoo.com>
+
+=head1 LICENSE AND COPYRIGHT
+
+This software is Free software and may be used and redistributed under the same
+terms as any version of perl itself.
+
+Copyright John Drago 2011 all rights reserved.
+
+=cut
+
+

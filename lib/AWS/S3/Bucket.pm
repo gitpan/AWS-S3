@@ -229,7 +229,7 @@ sub file
 {
   my ($s, $key) = @_;
   
-  my $type = 'GetFileContents';
+  my $type = 'GetFileInfo';
   
   my $parser = $s->_get_property($type, key => $key)
     or return;
@@ -241,7 +241,6 @@ sub file
     size          => $res->header('content-length'),
     etag          => $res->header('etag'),
     lastmodified  => $res->header('last-modified'),
-    contents      => \$res->decoded_content,
   );
 }# end file()
 

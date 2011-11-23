@@ -3,7 +3,7 @@ package AWS::S3;
 
 use VSO;
 use Carp 'confess';
-use LWP::UserAgent;
+use LWP::UserAgent::Determined;
 use HTTP::Response;
 use IO::Socket::INET;
 use Class::Load 'load_class';
@@ -13,7 +13,7 @@ use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 
 has 'access_key_id' => (
   is    => 'ro'
@@ -31,7 +31,7 @@ has 'secure' => (
 
 has 'ua' => (
   is      => 'ro',
-  default => sub { LWP::UserAgent->new }
+  default => sub { LWP::UserAgent::Determined->new }
 );
 
 
