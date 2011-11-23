@@ -13,7 +13,7 @@ use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.007';
+our $VERSION = '0.008';
 
 has 'access_key_id' => (
   is    => 'ro'
@@ -203,7 +203,7 @@ AWS::S3 - Lightweight interface to Amazon S3 (Simple Storage Service)
   # Coderef should eturn a reference, not the actual string of content:
   $new_file = $bucket->add_file(
     key       => 'foo/bar.txt',
-    contents  => sub { return "This is the contents" }
+    contents  => sub { return \"This is the contents" }
   );
   
   # Get the file:
@@ -217,7 +217,7 @@ AWS::S3 - Lightweight interface to Amazon S3 (Simple Storage Service)
   $same_file->contents( \"New file contents" );
   
   # Update the contents with a code ref:
-  $same_file->contents( sub { return "New file contents" } );
+  $same_file->contents( sub { return \"New file contents" } );
   
   # Delete the file:
   $same_file->delete();

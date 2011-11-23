@@ -2,6 +2,11 @@
 Changelog for perl module AWS::S3
 
 
+2011-11-23      v0.008
+  - Fixed some POD to clearly show that a scalar reference is always needed
+    to set the contents of a file.
+  - Removed bad reference to a *::Lite module that doesn't exist on CPAN.
+
 2011-11-22      v0.007
   - Fixed AWS::S3::FileIterator to work properly.
   - New tests confirm it.

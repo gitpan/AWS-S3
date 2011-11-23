@@ -20,7 +20,7 @@ my %ok_methods = map { $_ => 1 } qw( DELETE GET HEAD PUT );
 has 's3' => (
   is        => 'ro',
   required  => 1,
-  isa       => 'Amazon::S3::Lite',
+  isa       => 'AWS::S3',
 );
 
 has 'method' => (
