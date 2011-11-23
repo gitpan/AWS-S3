@@ -22,6 +22,7 @@ requires      'URI::Escape'                 => '0';
 requires      'URI::QueryParam'             => '0';
 requires      'URI::Escape'                 => '0';
 requires      'Digest::HMAC_SHA1'           => '0';
+requires      'Iterator::Paged'             => '0';
 
 
 tests_recursive();

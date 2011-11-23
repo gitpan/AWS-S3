@@ -1,6 +1,8 @@
 
 Changelog for perl module AWS::S3
 
+2011-11-23      v0.009
+  - Added missing prereq Iterator::Paged
 
 2011-11-23      v0.008
   - Fixed some POD to clearly show that a scalar reference is always needed

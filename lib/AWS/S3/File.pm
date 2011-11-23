@@ -234,6 +234,15 @@ Accepts either a scalar-ref or a code-ref (which would return a scalar-ref).
 
 Once given a new value, the file is instantly updated on Amazon S3.
 
+  # GOOD: (uses scalarrefs)
+  my $value = "A string";
+  $file->contents( \$value );
+  $file->contents( sub { return \$value } );
+  
+  # BAD: (not scalarrefs)
+  $file->contents( $value );
+  $file->contents( sub { return $value } );
+
 =head1 PUBLIC METHODS
 
 =head2 delete()
