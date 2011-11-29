@@ -26,7 +26,7 @@ has 's3' => (
 has 'method' => (
   is        => 'ro',
   required  => 1,
-  where     => sub { $_[0] =~ m{^(GET|PUT|POST|DELETE)$}i },
+  where     => sub { m{^(GET|PUT|HEAD|DELETE)$}i },
 );
 
 has 'path' => (

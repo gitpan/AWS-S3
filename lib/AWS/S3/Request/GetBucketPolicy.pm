@@ -4,7 +4,6 @@ AWS::S3::Request::GetBucketPolicy;
 
 use VSO;
 use AWS::S3::HTTPRequest;
-use AWS::S3::HTTPRequest;
 
 extends 'AWS::S3::Request';
 

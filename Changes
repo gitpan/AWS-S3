@@ -1,6 +1,9 @@
 
 Changelog for perl module AWS::S3
 
+2011-11-29      v0.012
+  - Some bug fixes.  Upgrade recommended.
+
 2011-11-23      v0.011
   - Achieved an entry in the Guinness Book of World Records for 
     "Most Uploads to PAUSE in a Single Day"

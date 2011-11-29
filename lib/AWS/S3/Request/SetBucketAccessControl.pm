@@ -12,10 +12,8 @@ has 'acl_short' => (
   isa       => 'Maybe[Str]',
   required  => 0,
   where     => sub {
-    my %ok = map {$_=>1} qw(
-      private public-read public-read-write authenticated-read
-    );
-    exists($ok{$_[0]});
+    return 1 unless defined($_);
+    m{^(?:private|public-read|public-read-write|authenticated-read)$}
   }
 );
 
@@ -24,8 +22,8 @@ has 'acl_xml' => (
   isa       => 'Maybe[Str]',
   required  => 0,
   where     => sub {
-    # Should be an xml string:
-    return 1;
+    return 1 unless defined($_);
+    m{^\s*<.+>\s*$}s
   }
 );
 
