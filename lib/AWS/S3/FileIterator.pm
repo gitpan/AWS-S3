@@ -31,6 +31,15 @@ sub pattern   { shift->{pattern}    }
 sub bucket    { shift->{bucket}     }
 sub page_size { shift->{page_size}  }
 
+sub has_prev
+{
+  my $s = shift;
+  
+  return $s->page_number > 1;
+}# end has_prev()
+
+sub has_next  { shift->{has_next} }
+
 sub page_number
 {
   my $s = shift;
@@ -139,6 +148,8 @@ sub _fetch
     type      => $type,
     response  => $s->{bucket}->s3->ua->request( $req ),
   );
+  
+  $s->{has_next} = ($parser->xpc->findvalue('//s3:IsTruncated') || '') eq 'true' ? 1 : 0;
 
   my @files = ( );
   foreach my $node ( $parser->xpc->findnodes('//s3:Contents') )
@@ -206,6 +217,14 @@ If you only have a few files it might seem odd to require an iterator, but if yo
 have thousands (or millions) of files, the iterator will save you a lot of effort.
 
 =head1 PUBLIC PROPERTIES
+
+=head2 has_prev
+
+Boolean - read-only
+
+=head2 has_next
+
+Boolean - read-only
 
 =head2 page_number
 

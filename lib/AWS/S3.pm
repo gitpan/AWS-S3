@@ -13,7 +13,7 @@ use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 
 has 'access_key_id' => (
   is    => 'ro'
@@ -290,7 +290,7 @@ Default is C<0>
 
 Optional.  Should be an instance of L<LWP::UserAgent> or a subclass of it.
 
-Defaults to creating a new instance of L<LWP::UserAgent>
+Defaults to creating a new instance of L<LWP::UserAgent::Determined>
 
 =head1 PUBLIC PROPERTIES
 
