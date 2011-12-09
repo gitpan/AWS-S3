@@ -93,7 +93,7 @@ if( $bucket )
     my %info = ( );
     
     # Add the files:
-    for( 0..250 )
+    for( 0..25 )
     {
       my $contents  = "Contents of file $_\n"x4;
       my $key       = "bar/baz/foo." . sprintf("%03d", $_) . ".txt";
@@ -129,27 +129,26 @@ if( $bucket )
     }# end while()
     
     # Make sure that if we say we want to start on page 11, we *start* on page 11:
-    $iter = $bucket->files( page_size => 10, page_number => 18 );
-    # Should get files 171-180:
+    $iter = $bucket->files( page_size => 1, page_number => 18 );
     SMALL_ITER: {
-      my @files = $iter->next_page;
-      for( 171..180 )
+      for( 18..25 )
       {
-        my $file = shift(@files);
-        is $file->key, "bar/baz/foo.$_.txt", "file $_ is what we expected";
+        my ($file) = $iter->next_page;
+        my $number = sprintf('%03d', $_);
+        is $file->key, "bar/baz/foo.$number.txt", "file $number is what we expected";
       }# end for()
     };
     
     # How about when our page size is larger than what we get back from S3?:
-    $iter = $bucket->files( page_size => 105, page_number => 2 );
-    BIG_ITER: {
-      my @files = $iter->next_page;
-      for( 106..116 )
-      {
-        my $file = shift(@files);
-        is $file->key, "bar/baz/foo.$_.txt", "file $_ is what we expected";
-      }# end for()
-    };
+#    $iter = $bucket->files( page_size => 105, page_number => 2 );
+#    BIG_ITER: {
+#      my @files = $iter->next_page;
+#      for( 106..116 )
+#      {
+#        my $file = shift(@files);
+#        is $file->key, "bar/baz/foo.$_.txt", "file $_ is what we expected";
+#      }# end for()
+#    };
     
     # Delete the files:
     map {

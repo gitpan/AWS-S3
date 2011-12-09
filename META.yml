@@ -18,7 +18,7 @@ requires:
     Digest::HMAC_SHA1:          0
     MIME::Base64:               0
     URI::Escape:                0
-    VSO:                        0.003
+    VSO:                        0.012
     Iterator::Paged:            0
 recommends:
 no_index:

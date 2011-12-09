@@ -37,21 +37,21 @@ has 'path' => (
 
 has 'headers' => (
   is        => 'ro',
-  required  => 0,
+  required  => 1,
   isa       => 'HashRef',
   default   => sub { { } },
 );
 
 has 'content' => (
   is        => 'ro',
-  required  => 0,
+  required  => 1,
   isa       => 'Str|ScalarRef|CodeRef',
   default   => sub { '' },
 );
 
 has 'metadata' => (
   is        => 'ro',
-  required  => 0,
+  required  => 1,
   isa       => 'HashRef',
   default   => sub { { } },
 );

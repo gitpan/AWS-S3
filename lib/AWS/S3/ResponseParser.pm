@@ -29,7 +29,7 @@ has 'libxml'  => (
   is        => 'ro',
   isa       => 'XML::LibXML',
   required  => 1,
-  default   => sub { XML::LibXML->new() },
+  default   => sub { return XML::LibXML->new() },
 );
 
 has 'error_code' => (

@@ -49,11 +49,17 @@ has 'lastmodified'  => (
   required  => 0,
 );
 
+subtype 'AWS::S3::FileContents' => as 'CodeRef';
+coerce 'AWS::S3::FileContents' =>
+  from  'ScalarRef',
+  via   { my $val = $_; return sub { \$val } };
+
 has 'contents' => (
   is        => 'rw',
-  isa       => 'ScalarRef|CodeRef',
+  isa       => 'AWS::S3::FileContents',
   required  => 0,
   lazy      => 1,
+  coerce    => 1,
   default   => \&_get_contents,
 );
 

@@ -1,6 +1,9 @@
 
 Changelog for perl module AWS::S3
 
+2011-12-09      v0.014
+  - A few minor updates.
+
 2011-11-29      v0.013
   - AWS::S3::FileIterator now includes properties 'has_prev' and 'has_next' to
     help in scenarios of building 'prev' and 'next' navigations.

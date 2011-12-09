@@ -10,7 +10,8 @@ use Carp 'confess';
 has 'bucket' => (
   is        => 'ro',
   required  => 1,
-  isa       => 'Str'
+  isa       => 'Str',
+  default   => sub { '' }
 );
 
 has 's3' => (
