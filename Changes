@@ -1,6 +1,11 @@
 
 Changelog for perl module AWS::S3
 
+2011-12-13      v0.018
+  - Thanks to ukautz++ (Ulrich Kautz) for adding the ability to set the content-type
+    of files stored in S3.
+  - He even updated the POD to show how to set the content-type (via 'contenttype').
+
 2011-12-11      v0.017
   - Fixed broken META.yml (again)
 
