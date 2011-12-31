@@ -15,7 +15,7 @@ use Digest::HMAC_SHA1;
 
 my $METADATA_PREFIX      = 'x-amz-meta-';
 my $AMAZON_HEADER_PREFIX = 'x-amz-';
-my %ok_methods = map { $_ => 1 } qw( DELETE GET HEAD PUT );
+my %ok_methods = map { $_ => 1 } qw( DELETE GET HEAD PUT POST );
 
 has 's3' => (
   is        => 'ro',
@@ -26,7 +26,7 @@ has 's3' => (
 has 'method' => (
   is        => 'ro',
   required  => 1,
-  where     => sub { m{^(GET|PUT|HEAD|DELETE)$}i },
+  where     => sub { m{^(GET|PUT|HEAD|DELETE|POST)$}i },
 );
 
 has 'path' => (

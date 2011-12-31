@@ -180,6 +180,7 @@ sub _get_policy
 }# end _get_policy()
 
 
+# XXX: Not working.
 sub _set_policy
 {
   my ($s, $policy) = @_;
@@ -203,6 +204,7 @@ sub _set_policy
 }# end _set_policy()
 
 
+# XXX: Not working.
 sub enable_cloudfront_domain
 {
   my ($s, $cloudfront) = @_;
@@ -286,6 +288,32 @@ sub delete
   
   return 1;
 }# end delete()
+
+
+# XXX: Not working.
+sub delete_multi
+{
+  my ($s, @keys) = @_;
+  
+  my $type = 'DeleteMulti';
+  
+  my $req = $s->s3->request($type,
+    bucket  => $s->name,
+    keys    => \@keys,
+  );
+  my $parser = AWS::S3::ResponseParser->new(
+    type            => $type,
+    response        => $s->_raw_response( $req ),
+    expect_nothing  => 1,
+  );
+  
+  if( my $msg = $parser->friendly_error() )
+  {
+    die $msg;
+  }# end if()
+  
+  return 1;
+}# end delete_multi()
 
 
 sub _get_property

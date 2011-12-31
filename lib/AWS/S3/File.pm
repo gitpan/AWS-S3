@@ -15,7 +15,7 @@ has 'bucket' => (
   is        => 'ro',
   isa       => 'AWS::S3::Bucket',
   required  => 1,
-  weak_ref  => 1,
+  weak_ref  => 0,
 );
 
 has 'size'  => (
