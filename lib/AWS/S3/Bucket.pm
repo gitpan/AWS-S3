@@ -197,7 +197,7 @@ sub enable_cloudfront_distribution
   $cloudfront_dist->isa('AWS::CloudFront::Distribution')
     or die "Usage: enable_cloudfront_distribution( <AWS::CloudFront::Distribution object> )";
   
-  my $ident = $cloudfront_dist->create_origin_access_identity(
+  my $ident = $cloudfront_dist->cf->create_origin_access_identity(
     Comment => "Access to s3://" . $s->name,
   );
   $s->policy(<<"JSON");
