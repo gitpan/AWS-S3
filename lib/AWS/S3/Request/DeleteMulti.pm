@@ -1,6 +1,6 @@
 
 package
-AWS::S3::Request::GetFileInfo;
+AWS::S3::Request::DeleteMulti;
 
 use VSO;
 use AWS::S3::Signer;
@@ -14,9 +14,9 @@ has 'bucket' => (
   required  => 1,
 );
 
-has 'key' => (
+has 'keys' => (
   is        => 'ro',
-  isa       => 'Str',
+  isa       => 'ArrayRef[Str]',
   required  => 1,
 );
 
@@ -25,14 +25,25 @@ sub request
 {
   my $s = shift;
   
+  my $objects = join "\n", map { "<Object><Key>@{[ $_ ]}</Key></Object>" } @{ $s->keys };
+  
+  my $xml = <<"XML";
+<?xml version="1.0" encoding="UTF-8"?>
+<Delete>
+$objects
+</Delete>
+XML
+  
   my $signer = AWS::S3::Signer->new(
     s3            => $s->s3,
-    method        => 'HEAD',
-    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . $s->key,
+    method        => 'POST',
+    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/?delete',
+    content       => \$xml,
   );
   $s->_send_request( $signer->method => $signer->uri => {
     Authorization => $signer->auth_header,
     Date          => $signer->date,
+    'content-md5' => $signer->content_md5,
   });
 }# end request()
 
@@ -46,6 +57,7 @@ sub parse_response
     type            => $s->type,
   );
 }# end http_request()
+
 
 1;# return true:
 

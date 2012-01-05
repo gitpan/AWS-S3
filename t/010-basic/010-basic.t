@@ -7,6 +7,9 @@ use Data::Dumper;
 use FindBin qw/ $Bin /;
 use lib "$Bin/../../lib";
 
+use Carp 'confess';
+$SIG{__DIE__} = \&confess;
+
 use_ok('AWS::S3');
 
 unless( $ENV{AWS_ACCESS_KEY_ID} && $ENV{AWS_SECRET_ACCESS_KEY} )
@@ -15,11 +18,10 @@ unless( $ENV{AWS_ACCESS_KEY_ID} && $ENV{AWS_SECRET_ACCESS_KEY} )
   exit(0);
 }# end unless()
 
-use LWP::UserAgent::Determined;
+
 my $s3 = AWS::S3->new(
   access_key_id     => $ENV{AWS_ACCESS_KEY_ID},
   secret_access_key => $ENV{AWS_SECRET_ACCESS_KEY},
-  ua                => LWP::UserAgent::Determined->new()
 );
 
 isa_ok $s3->ua, 'LWP::UserAgent';
@@ -32,17 +34,41 @@ ok $owner->id, 'owner.id';
 ok $owner->display_name, 'owner.display_name';
 
 my $bucket_name = "aws-s3-test-" . int(rand() * 1_000_000) . '-' . time() . "-foo";
-ok my $bucket = $s3->add_bucket( name => $bucket_name ), "created bucket '$bucket_name'";
+ok my $bucket = $s3->add_bucket( name => $bucket_name, location => 'us-west-1' ), "created bucket '$bucket_name'";
+
+#exit;
 if( $bucket )
 {
+
+if(0) {
+  # Try cloudfront integration if we've got it:
+  eval { require AWS::CloudFront; require AWS::CloudFront::S3Origin; };
+  die $@ if $@;
+  unless( $@ )
+  {
+    my $cf = AWS::CloudFront->new(
+      access_key_id     => $s3->access_key_id,
+      secret_access_key => $s3->secret_access_key,
+    );
+    my $dist = $cf->add_distribution(
+      Origin  => AWS::CloudFront::S3Origin->new(
+        DNSName => $bucket->name . '.s3.amazonaws.com',
+      )
+    );
+    $bucket->enable_cloudfront_distribution( $dist );
+  }# end unless()
+}
+
   my $acl = $bucket->acl;
   ok $bucket->acl( 'private' ), 'set bucket.acl to private';
   is $acl, $bucket->acl, 'get bucket.acl returns private';
-  ok $bucket->location_constraint( 'us-west-1' ), 'set bucket.location_constraint to us-west-1';
-  is $bucket->location_constraint, 'us-west-1', 'get bucket.location returns us-west-1';
-  
+
+#  ok $bucket->location_constraint( 'us-west-1' ), 'set bucket.location_constraint to us-west-1';
+#  is $bucket->location_constraint, 'us-west-1', 'get bucket.location returns us-west-1';
+  is $s3->bucket($bucket->name)->location_constraint, 'us-west-1', 'get bucket.location returns us-west-1 second time';
+
   is $bucket->policy, '', 'get bucket.policy returns empty string';
-  
+
   my $test_str = "This is the original value right here!"x20;
   my $filename = 'foo/bar.txt';
   ADD_FILE: {
@@ -159,9 +185,9 @@ if( $bucket )
     
     # Delete the files:
     ok($bucket->delete_multi( map { $_ } sort keys %info ), 'bucket.delete_multi(@keys)' );
-#    map {
-#      ok $bucket->file($_)->delete && ! $bucket->file($_), "bucket.file($_).delete worked"
-#    } sort keys %info;
+    map {
+      ok $bucket->file($_)->delete && ! $bucket->file($_), "bucket.file($_).delete worked"
+    } sort keys %info;
   };
   
   
@@ -208,12 +234,12 @@ sub cleanup
     my $iter = $bucket->files( page_size => 100, page_number => 1 );
     while( my @files = $iter->next_page )
     {
-$bucket->delete_multi( map { $_->key } @files );
-#      foreach my $file ( @files )
-#      {
-#        warn "\tdelete: ", $file->key, "\n";
-#        eval { $file->delete };
-#      }# end foreach()
+#$bucket->delete_multi( map { $_->key } @files );
+      foreach my $file ( @files )
+      {
+        warn "\tdelete: ", $file->key, "\n";
+        eval { $file->delete };
+      }# end foreach()
       $iter->page_number( 1 );
     }# end while()
     eval { $bucket->delete };
