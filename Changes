@@ -1,6 +1,9 @@
 
 Changelog for perl module AWS::S3
 
+2012-01-12      v0.025
+  - $bucket->delete_multi( @keys ) actually works now.
+
 2012-01-05      v0.024
   - Better integration with CloudFront.
   - More CF-related updates are on the way.
