@@ -1,6 +1,10 @@
 
 Changelog for perl module AWS::S3
 
+2012-01-30      v0.026
+  - $bucket->file( $missing_file ) was failing silently, causing strange behavior
+    further upstream.  Now it will confess with the http response from S3.
+
 2012-01-12      v0.025
   - $bucket->delete_multi( @keys ) actually works now.
 

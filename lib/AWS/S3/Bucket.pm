@@ -240,6 +240,7 @@ sub file
     or return;
   
   my $res = $parser->response;
+  confess "Cannot get file: ", $res->as_string, " " unless $res->is_success;
   return AWS::S3::File->new(
     bucket        => $s,
     key           => $key,
