@@ -1,6 +1,10 @@
 
 Changelog for perl module AWS::S3
 
+2012-03-02      v0.029
+  - If $bucket->file('foo.txt') fails, you will now now which file failed - not
+    simply that there was a problem getting the file (you'll now *which* file failed).
+
 2012-03-01      v0.028
   - Fixed: AWS/S3.pm required a higher version of VSO than the Makefile.PL and META.yml.
   - Strange: Local testing shows $bucket->delete_multi works, but it gives me 
