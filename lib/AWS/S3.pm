@@ -14,7 +14,7 @@ use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
 
-our $VERSION = '0.030';
+our $VERSION = '0.031';
 
 has 'access_key_id' => (
   is    => 'ro'

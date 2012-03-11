@@ -1,6 +1,10 @@
 
 Changelog for perl module AWS::S3
 
+2012-03-11      v0.031
+  - The solution for S3 bucket names had to mature a little more.  This release
+    appears to solve the whole issue.
+
 2012-03-11      v0.030
   - Buckets with mixed-case names LikeThis were causing problems in AWS::S3::Signer.
   - That has now been solved.

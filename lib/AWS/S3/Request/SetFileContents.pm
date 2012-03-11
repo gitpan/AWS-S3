@@ -45,10 +45,20 @@ sub request
   my %other_args = ( );
   $other_args{'x-amz-server-side-encryption'} = 'AES256' if $s->file->is_encrypted;
   
+  my $uri = '';
+  if( $s->bucket =~ m{[A-Z]} )
+  {
+    $uri = $s->protocol . '://s3.amazonaws.com/' . $s->bucket . '/' . $s->file->key;
+  }
+  else
+  {
+    $uri = $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . $s->file->key;
+  }# end if()
+  
   my $signer = AWS::S3::Signer->new(
     s3            => $s->s3,
     method        => 'PUT',
-    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . $s->file->key,
+    uri           => $uri,
     content_type  => $s->content_type,
     content       => $contents,
   );

@@ -46,10 +46,22 @@ sub request
   push @params, 'marker=' . $s->marker if $s->marker;
   push @params, 'prefix=' . $s->prefix if $s->prefix;
   push @params, 'delimiter=' . $s->delimiter if $s->delimiter;
+  
+  my $uri = '';
+  if( $s->bucket =~ m{[A-Z]} )
+  {
+    $uri = $s->protocol . '://s3.amazonaws.com/' . $s->bucket . '/' . ( @params ? '?' . join( '&', @params) : ''),
+  }
+  else
+  {
+    $uri = $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . ( @params ? '?' . join( '&', @params) : '');
+  }# end if()
+  
   my $signer = AWS::S3::Signer->new(
     s3            => $s->s3,
     method        => 'GET',
-    uri           => $s->protocol . '://s3.amazonaws.com/' . $s->bucket . '/' . ( @params ? '?' . join( '&', @params) : ''),
+    uri           => $uri,
+#    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . ( @params ? '?' . join( '&', @params) : ''),
   );
   $s->_send_request( $signer->method => $signer->uri => {
     Authorization => $signer->auth_header,

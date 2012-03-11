@@ -38,6 +38,30 @@ sub _send_request
   } keys %$headers;
   
   my $res = $s->s3->ua->request( $req );
+
+  unless( $res->is_success )
+  {
+    if( $res->header('location') )
+    {
+      if( $res->content =~ m{\bTemporaryRedirect\b} )
+      {
+        $req->uri( $res->header('location') );
+        $res = $s->s3->ua->request( $req );
+      }
+      elsif( $res->content =~ m{\bPermanentRedirect\b} )
+      {
+#        $req->uri( $res->header('location') );
+#        $res = $s->s3->ua->request( $req );
+      }# end if()
+    }# end if()
+  }# end unless()
+
+#warn $req->as_string;
+#warn "="x80, "\n";
+#warn $res->as_string;
+#warn "\n"x10;
+#warn "="x80, "\n";
+#warn "="x80, "\n";
   
   # After creating a bucket and setting its location constraint, we get this
   # strange 'TemporaryRedirect' response.  Deal with it.

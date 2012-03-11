@@ -34,10 +34,19 @@ $objects
 </Delete>
 XML
   
+  my $uri = '';
+  if( $s->bucket =~ m{[A-Z]} )
+  {
+    $uri = $s->protocol . '://s3.amazonaws.com/' . $s->bucket . '/?delete';
+  }
+  else
+  {
+    $uri = $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/?delete';
+  }# end if()
   my $signer = AWS::S3::Signer->new(
     s3            => $s->s3,
     method        => 'POST',
-    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/?delete',
+    uri           => $uri,
     content       => \$xml,
     content_type  => '',
   );
