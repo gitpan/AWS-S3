@@ -110,13 +110,6 @@ has 'canonicalized_amz_headers' => (
   lazy      => 1,
   default   => sub {
     my $s = shift;
-    
-    # Add the x-amz-* headers if they don't already exist:
-#    if( my $md5 = $s->content_md5 )
-#    {
-#      $s->headers->header( 'x-amz-content-md5' => $md5 );
-#      $s->headers->header( 'content-md5' => $md5 );
-#    }# end if()
 
     my @h = @{ $s->headers };
     my %out = ( );
@@ -158,7 +151,7 @@ has 'canonicalized_resource' => (
   default   => sub {
     my $s = shift;
     my $str = $s->bucket_name ? '/' . $s->bucket_name . $s->uri->path : $s->uri->path;
-    
+
     if( my ($resource) = ($s->uri->query||'') =~ m{[&]*(acl|website|location|policy|delete|lifecycle)(?!\=)} )
     {
       $str .= '?' . $resource;

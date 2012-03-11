@@ -1,6 +1,10 @@
 
 Changelog for perl module AWS::S3
 
+2012-03-11      v0.030
+  - Buckets with mixed-case names LikeThis were causing problems in AWS::S3::Signer.
+  - That has now been solved.
+
 2012-03-02      v0.029
   - If $bucket->file('foo.txt') fails, you will now now which file failed - not
     simply that there was a problem getting the file (you'll now *which* file failed).

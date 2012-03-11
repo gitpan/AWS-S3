@@ -326,7 +326,7 @@ sub _get_property
     %args,
   );
   my $response = $req->request();
-  
+    
   return if $response->response->code == 404;
   
   if( my $msg = $response->friendly_error() )

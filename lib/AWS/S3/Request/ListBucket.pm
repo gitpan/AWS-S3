@@ -49,7 +49,7 @@ sub request
   my $signer = AWS::S3::Signer->new(
     s3            => $s->s3,
     method        => 'GET',
-    uri           => $s->protocol . '://' . $s->bucket . '.s3.amazonaws.com/' . ( @params ? '?' . join( '&', @params) : ''),
+    uri           => $s->protocol . '://s3.amazonaws.com/' . $s->bucket . '/' . ( @params ? '?' . join( '&', @params) : ''),
   );
   $s->_send_request( $signer->method => $signer->uri => {
     Authorization => $signer->auth_header,
