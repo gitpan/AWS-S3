@@ -1,7 +1,7 @@
 
 package AWS::S3;
 
-use VSO 0.024;
+use Moose;
 use Carp 'confess';
 use LWP::UserAgent::Determined;
 use HTTP::Response;
@@ -13,107 +13,97 @@ use AWS::S3::ResponseParser;
 use AWS::S3::Owner;
 use AWS::S3::Bucket;
 
+our $VERSION = '0.040';
 
-our $VERSION = '0.031';
-
-has 'access_key_id' => (
-  is    => 'ro'
-);
-
-has 'secret_access_key' => (
-  is    => 'ro'
-);
+has [qw/access_key_id secret_access_key/] => ( is => 'ro', isa => 'Str' );
 
 has 'secure' => (
-  is      => 'ro',
-  isa     => 'Int',
-  lazy    => 1,
-  default => sub { 0 },
+    is      => 'ro',
+    isa     => 'Bool',
+    lazy    => 1,
+    default => 0
+);
+
+has 'endpoint' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub { 's3.amazonaws.com' },
 );
 
 has 'ua' => (
-  is      => 'ro',
-  isa     => 'LWP::UserAgent',
-  default => sub { LWP::UserAgent::Determined->new }
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
+    default => sub { LWP::UserAgent::Determined->new }
 );
 
+sub request {
+    my ( $s, $type, %args ) = @_;
 
-sub request
-{
-  my ($s, $type, %args) = @_;
-  
-  my $class = "AWS::S3::Request::$type";
-  load_class($class);
-  return $class->new( %args, s3 => $s, type => $type );
-}# end request()
+    my $class = "AWS::S3::Request::$type";
+    load_class( $class );
+    return $class->new( %args, s3 => $s, type => $type );
+}    # end request()
 
+sub owner {
+    my $s = shift;
 
-sub owner
-{
-  my $s = shift;
-  
-  my $type = 'ListAllMyBuckets';
-  my $request = $s->request( $type );
-  my $response = $request->request();
-  my $xpc = $response->xpc;
-  return AWS::S3::Owner->new(
-    id            => $xpc->findvalue('//s3:Owner/s3:ID'),
-    display_name  => $xpc->findvalue('//s3:Owner/s3:DisplayName'),
-  );
-}# end owner()
-
-
-sub buckets
-{
-  my ($s) = @_;
-  
-  my $type = 'ListAllMyBuckets';
-  my $request = $s->request( $type );
-  my $response = $request->request( );
-  
-  my $xpc = $response->xpc;
-  my @buckets = ( );
-  foreach my $node ( $xpc->findnodes('.//s3:Bucket') )
-  {
-    push @buckets, AWS::S3::Bucket->new(
-      name          => $xpc->findvalue('.//s3:Name', $node ),
-      creation_date => $xpc->findvalue('.//s3:CreationDate', $node),
-      s3            => $s,
+    my $type     = 'ListAllMyBuckets';
+    my $request  = $s->request( $type );
+    my $response = $request->request();
+    my $xpc      = $response->xpc;
+    return AWS::S3::Owner->new(
+        id           => $xpc->findvalue( '//s3:Owner/s3:ID' ),
+        display_name => $xpc->findvalue( '//s3:Owner/s3:DisplayName' ),
     );
-  }# end foreach()
-  
-  return @buckets;
-}# end buckets()
+}    # end owner()
 
+sub buckets {
+    my ( $s ) = @_;
 
-sub bucket
-{
-  my ($s, $name) = @_;
-  
-  my ($bucket) = grep { $_->name eq $name } $s->buckets
-    or return;
-  $bucket;
-}# end bucket()
+    my $type     = 'ListAllMyBuckets';
+    my $request  = $s->request( $type );
+    my $response = $request->request();
 
+    my $xpc     = $response->xpc;
+    my @buckets = ();
+    foreach my $node ( $xpc->findnodes( './/s3:Bucket' ) ) {
+        push @buckets,
+          AWS::S3::Bucket->new(
+            name          => $xpc->findvalue( './/s3:Name',         $node ),
+            creation_date => $xpc->findvalue( './/s3:CreationDate', $node ),
+            s3            => $s,
+          );
+    }    # end foreach()
 
-sub add_bucket
-{
-  my ($s, %args) = @_;
-  
-  my $type = 'CreateBucket';
-  my $request = $s->request( $type, bucket => $args{name}, location => $args{location} );
-  my $response = $request->request( );
-  
-  if( my $msg = $response->friendly_error() )
-  {
-    die $msg;
-  }# end if()
-  
-  return $s->bucket( $args{name} );
-}# end add_bucket()
+    return @buckets;
+}    # end buckets()
 
+sub bucket {
+    my ( $s, $name ) = @_;
 
-1;# return true:
+    my ( $bucket ) = grep { $_->name eq $name } $s->buckets
+      or return;
+    $bucket;
+}    # end bucket()
+
+sub add_bucket {
+    my ( $s, %args ) = @_;
+
+    my $type     = 'CreateBucket';
+    my $request  = $s->request( $type, bucket => $args{name}, location => $args{location} );
+    my $response = $request->request();
+
+    if ( my $msg = $response->friendly_error() ) {
+        die $msg;
+    }    # end if()
+
+    return $s->bucket( $args{name} );
+}    # end add_bucket()
+
+__PACKAGE__->meta->make_immutable;
+
+__END__
 
 =pod
 
@@ -124,49 +114,49 @@ AWS::S3 - Lightweight interface to Amazon S3 (Simple Storage Service)
 =head1 SYNOPSIS
 
   use AWS::S3;
-  
+
   my $s3 = AWS::S3->new(
     access_key_id     => 'E654SAKIASDD64ERAF0O',
     secret_access_key => 'LgTZ25nCD+9LiCV6ujofudY1D6e2vfK0R4GLsI4H',
   );
-  
+
   # Add a bucket:
   my $bucket = $s3->add_bucket(
     name    => 'foo-bucket',
   );
-  
+
   # Set the acl:
   $bucket->acl( 'private' );
-  
+
   # Add a file:
   my $new_file = $bucket->add_file(
     key       => 'foo/bar.txt',
     contents  => \'This is the contents of the file',
   );
-  
+
   # You can also set the contents with a coderef:
   # Coderef should eturn a reference, not the actual string of content:
   $new_file = $bucket->add_file(
     key       => 'foo/bar.txt',
     contents  => sub { return \"This is the contents" }
   );
-  
+
   # Get the file:
   my $same_file = $bucket->file( 'foo/bar.txt' );
-  
+
   # Get the contents:
   my $scalar_ref = $same_file->contents;
   print $$scalar_ref;
-  
+
   # Update the contents with a scalar ref:
   $same_file->contents( \"New file contents" );
-  
+
   # Update the contents with a code ref:
   $same_file->contents( sub { return \"New file contents" } );
-  
+
   # Delete the file:
   $same_file->delete();
-  
+
   # Iterate through lots of files:
   my $iterator = $bucket->files(
     page_size   => 100,
@@ -183,17 +173,17 @@ AWS::S3 - Lightweight interface to Amazon S3 (Simple Storage Service)
       warn "\tContents: ", ${ $file->contents }, "\n";
     }# end foreach()
   }# end while()
-  
+
   # You can't delete a bucket until it's empty.
   # Empty a bucket like this:
   while( my @files = $iterator->next_page )
   {
     map { $_->delete } @files;
-    
+
     # Return to page 1:
     $iterator->page_number( 1 );
   }# end while()
-  
+
   # Now you can delete the bucket:
   $bucket->delete();
 
@@ -231,6 +221,12 @@ Optional.  Boolean.
 
 Default is C<0>
 
+=head2 endpoint
+
+Optional.  String.
+
+Default is C<s3.amazonaws.com>
+
 =head2 ua
 
 Optional.  Should be an instance of L<LWP::UserAgent> or a subclass of it.
@@ -250,6 +246,10 @@ String.  Read-only.
 =head2 secure
 
 Boolean.  Read-only.
+
+=head2 endpoint
+
+String.  Read-only.
 
 =head2 ua
 
