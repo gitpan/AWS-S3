@@ -52,7 +52,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/leejo/AWS-S3/issues"
@@ -65,5 +65,5 @@
          "url" : "https://github.com/leejo/AWS-S3"
       }
    },
-   "version" : "0.040_01"
+   "version" : "0.050"
 }

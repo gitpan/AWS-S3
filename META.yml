@@ -40,4 +40,4 @@ resources:
   homepage: https://metacpan.org/module/AWS-S3
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/AWS-S3
-version: 0.040_01
+version: '0.050'
